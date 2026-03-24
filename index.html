@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FPS LeCode – Annual Programming Contest by FPT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --fpt-orange: #F37021;
+      --fpt-orange-dark: #C85A10;
+      --fpt-orange-light: #FFF3EA;
+      --navy: #1A2A3A;
+      --navy-mid: #2C3E50;
+      --gray-100: #F5F5F5;
+      --gray-200: #E8E8E8;
+      --gray-400: #999;
+      --gray-600: #555;
+      --white: #fff;
+      --font-serif: 'Merriweather', Georgia, serif;
+      --font-sans: 'Source Sans 3', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); color: var(--navy); background: var(--white); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--navy); color: #ccc; font-size: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 40px;
+    }
+    .topbar a { color: #ccc; margin-left: 16px; transition: color .2s; }
+    .topbar a:hover { color: var(--fpt-orange); }
+    .lang-toggle {
+      background: var(--fpt-orange); color: #fff;
+      padding: 2px 10px; border-radius: 3px; font-size: 11px;
+      cursor: pointer; border: none; font-family: var(--font-sans); margin-left: 14px;
+    }
+
+    /* HEADER */
+    header { background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,.08); position: sticky; top: 0; z-index: 100; }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; max-width: 1280px; margin: 0 auto; height: 72px;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 14px; }
+    .logo-icon {
+      width: 52px; height: 52px; background: var(--fpt-orange); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-serif); font-weight: 900; font-size: 18px; color: #fff; letter-spacing: -1px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-text .brand { font-family: var(--font-serif); font-weight: 900; font-size: 20px; color: var(--navy); }
+    .logo-text .brand span { color: var(--fpt-orange); }
+    .logo-text .sub { font-size: 10px; color: var(--gray-400); letter-spacing: .5px; text-transform: uppercase; }
+
+    /* NAV */
+    nav { display: flex; align-items: center; }
+    .nav-item {
+      position: relative; font-size: 13px; font-weight: 600; color: var(--navy);
+      padding: 0 14px; height: 72px; display: flex; align-items: center;
+      cursor: pointer; transition: color .2s; text-align: center; line-height: 1.2;
+    }
+    .nav-item:hover { color: var(--fpt-orange); }
+    .nav-item::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--fpt-orange); transform: scaleX(0); transition: transform .2s;
+    }
+    .nav-item:hover::after, .nav-item.active::after { transform: scaleX(1); }
+    .nav-item.active { color: var(--fpt-orange); }
+
+    .search-wrap { position: relative; margin-left: 12px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .nav-search {
+      background: var(--gray-100); border: none; border-radius: 20px;
+      padding: 7px 16px 7px 34px; font-size: 13px; color: var(--navy);
+      font-family: var(--font-sans); width: 170px; outline: none;
+      transition: width .3s, background .2s;
+    }
+    .nav-search:focus { width: 210px; background: #fff; box-shadow: 0 0 0 2px var(--fpt-orange); }
+
+    /* HERO */
+    .hero { position: relative; overflow: hidden; height: 540px; }
+    .hero-slides { display: flex; width: 300%; transition: transform .7s cubic-bezier(.4,0,.2,1); }
+    .hero-slide { width: 33.333%; height: 540px; position: relative; display: flex; align-items: flex-end; }
+    .slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(26,42,58,.88) 40%, rgba(26,42,58,.18)); }
+    .slide-content { position: relative; z-index: 2; max-width: 600px; padding: 0 60px 60px; color: #fff; }
+    .slide-tag {
+      display: inline-block; background: var(--fpt-orange);
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 2px; margin-bottom: 14px;
+    }
+    .slide-title { font-family: var(--font-serif); font-size: clamp(24px, 3vw, 40px); font-weight: 900; line-height: 1.15; margin-bottom: 14px; }
+    .slide-desc { font-size: 14px; line-height: 1.7; opacity: .88; margin-bottom: 24px; max-width: 480px; }
+    .btn-primary {
+      display: inline-block; background: var(--fpt-orange); color: #fff;
+      font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 4px;
+      transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: var(--fpt-orange-dark); transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-block; border: 2px solid #fff; color: #fff;
+      font-weight: 700; font-size: 14px; padding: 10px 24px; border-radius: 4px; margin-left: 10px;
+      transition: background .2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.15); }
+
+    .hero-dots { position: absolute; bottom: 20px; right: 40px; display: flex; gap: 8px; z-index: 5; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.38); cursor: pointer; transition: background .3s; }
+    .dot.active { background: var(--fpt-orange); }
+    .hero-arrows { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; display: flex; justify-content: space-between; padding: 0 16px; z-index: 5; pointer-events: none; }
+    .arrow-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.35); color: #fff; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      pointer-events: all; transition: background .2s;
+    }
+    .arrow-btn:hover { background: var(--fpt-orange); }
+
+    /* code decoration in hero */
+    .code-deco {
+      position: absolute; right: 60px; top: 50%; transform: translateY(-50%);
+      font-family: 'Courier New', monospace; font-size: 12px; color: rgba(255,255,255,.1);
+      line-height: 1.8; pointer-events: none; z-index: 1; white-space: pre;
+    }
+    @media (max-width: 900px) { .code-deco { display: none; } }
+
+    /* QUICKLINKS */
+    .quicklinks { background: var(--navy); display: flex; overflow-x: auto; }
+    .quicklinks::-webkit-scrollbar { display: none; }
+    .ql-item {
+      flex: 1; min-width: 130px; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 7px; padding: 18px 12px;
+      color: rgba(255,255,255,.72); font-size: 12px; font-weight: 600; text-align: center;
+      border-right: 1px solid rgba(255,255,255,.07); cursor: pointer; transition: background .2s, color .2s;
+    }
+    .ql-item:hover { background: var(--fpt-orange); color: #fff; }
+
+    /* COMMON SECTION */
+    .section-wrap { padding: 64px 40px; max-width: 1280px; margin: 0 auto; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--fpt-orange); margin-bottom: 8px; }
+    .section-title { font-family: var(--font-serif); font-size: clamp(22px, 3vw, 32px); font-weight: 900; color: var(--navy); margin-bottom: 10px; line-height: 1.2; }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+    .view-all { font-size: 13px; font-weight: 700; color: var(--fpt-orange); border-bottom: 2px solid var(--fpt-orange); padding-bottom: 2px; white-space: nowrap; }
+
+    /* STATS */
+    .stats-band { background: var(--fpt-orange); display: grid; grid-template-columns: repeat(4,1fr); }
+    .stat-item { text-align: center; padding: 36px 20px; color: #fff; border-right: 1px solid rgba(255,255,255,.2); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: var(--font-serif); font-size: 46px; font-weight: 900; line-height: 1; display: block; }
+    .stat-label { font-size: 13px; opacity: .85; margin-top: 6px; }
+
+    /* NEWS */
+    .news-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; }
+    .news-card { background: var(--white); overflow: hidden; }
+    .news-card:hover .card-img-inner { transform: scale(1.04); }
+    .card-img { overflow: hidden; }
+    .card-img-inner { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+    .placeholder-img {
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.7); font-size: 14px; font-weight: 600;
+      font-family: var(--font-serif);
+    }
+    .card-body { padding: 18px 0; }
+    .card-tag { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fpt-orange); margin-bottom: 8px; }
+    .card-title { font-family: var(--font-serif); font-size: 16px; font-weight: 700; line-height: 1.4; color: var(--navy); margin-bottom: 8px; transition: color .2s; }
+    .card-title:hover { color: var(--fpt-orange); cursor: pointer; }
+    .card-meta { font-size: 12px; color: var(--gray-400); }
+    .news-card.featured .card-title { font-size: 19px; }
+
+    /* HIGHLIGHTS */
+    .highlights-bg { background: var(--gray-100); }
+    .highlights-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .hl-card {
+      background: var(--white); border-top: 4px solid var(--fpt-orange); padding: 30px 26px;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .hl-card:hover { box-shadow: 0 8px 32px rgba(243,112,33,.13); transform: translateY(-4px); }
+    .hl-icon {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--fpt-orange-light);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    }
+    .hl-title { font-family: var(--font-serif); font-size: 17px; font-weight: 700; margin-bottom: 10px; color: var(--navy); }
+    .hl-desc { font-size: 13.5px; line-height: 1.7; color: var(--gray-600); }
+    .hl-link { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; color: var(--fpt-orange); }
+
+    /* EVENTS */
+    .events-list { list-style: none; }
+    .event-row { display: flex; align-items: flex-start; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--gray-200); }
+    .event-date { min-width: 58px; text-align: center; background: var(--fpt-orange); color: #fff; border-radius: 6px; padding: 10px 8px; }
+    .event-date .day { font-size: 24px; font-weight: 900; font-family: var(--font-serif); line-height: 1; }
+    .event-date .month { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: .85; }
+    .event-info { flex: 1; }
+    .event-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 4px; transition: color .2s; cursor: pointer; }
+    .event-title:hover { color: var(--fpt-orange); }
+    .event-meta { font-size: 12px; color: var(--gray-400); }
+
+    /* COUNTDOWN + SIDEBAR */
+    .sidebar-countdown { background: var(--fpt-orange-light); border-left: 4px solid var(--fpt-orange); padding: 26px; margin-bottom: 22px; }
+    .cd-grid { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+    .cd-unit { text-align: center; }
+    .cd-num { font-family: var(--font-serif); font-size: 38px; font-weight: 900; color: var(--fpt-orange); line-height: 1; }
+    .cd-label { font-size: 11px; color: var(--gray-600); margin-top: 4px; }
+    .cd-sep { font-size: 30px; color: var(--fpt-orange); padding-top: 6px; }
+
+    .sidebar-stats { background: var(--navy); padding: 26px; color: #fff; }
+    .stat-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 12px; margin-bottom: 12px; }
+    .stat-row:last-of-type { border-bottom: none; margin-bottom: 0; }
+    .stat-row span:first-child { font-size: 13px; opacity: .75; }
+    .stat-row span:last-child { font-weight: 700; color: var(--fpt-orange); font-size: 14px; }
+
+    /* BANNER CTA */
+    .banner-cta {
+      background: linear-gradient(135deg, var(--navy) 0%, #243b55 100%);
+      padding: 64px 40px; display: flex; align-items: center;
+      justify-content: space-between; gap: 32px; flex-wrap: wrap;
+    }
+    .banner-cta h2 { font-family: var(--font-serif); font-size: 30px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+    .banner-cta p { color: rgba(255,255,255,.75); font-size: 15px; max-width: 560px; line-height: 1.6; }
+    .btn-cta {
+      background: var(--fpt-orange); color: #fff; font-weight: 700; font-size: 15px;
+      padding: 14px 36px; border-radius: 4px; white-space: nowrap; transition: background .2s, transform .15s;
+    }
+    .btn-cta:hover { background: var(--fpt-orange-dark); transform: translateY(-2px); }
+
+    /* FOOTER */
+    footer { background: var(--navy); color: rgba(255,255,255,.62); padding: 56px 40px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1280px; margin: 0 auto 40px; }
+    .footer-desc { margin-top: 14px; font-size: 13px; line-height: 1.7; }
+    .footer-socials { display: flex; gap: 9px; margin-top: 18px; }
+    .social-btn {
+      width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.7); font-size: 13px; font-weight: 700;
+      transition: background .2s, color .2s, border-color .2s; cursor: pointer;
+    }
+    .social-btn:hover { background: var(--fpt-orange); color: #fff; border-color: var(--fpt-orange); }
+    .footer-col h4 { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; }
+    .footer-col a { font-size: 13px; color: rgba(255,255,255,.6); transition: color .2s; }
+    .footer-col a:hover { color: var(--fpt-orange); }
+    .footer-bottom {
+      max-width: 1280px; margin: 0 auto; border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 20px; display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .footer-bottom a { color: rgba(255,255,255,.5); margin-left: 16px; }
+    .footer-bottom a:hover { color: var(--fpt-orange); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .news-grid { grid-template-columns: 1fr 1fr; }
+      .news-card.featured { grid-column: 1 / -1; }
+      .stats-band { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .events-layout { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .hero { height: 400px; }
+      .slide-content { padding: 0 24px 36px; }
+      .section-wrap { padding: 48px 20px; }
+      .news-grid { grid-template-columns: 1fr; }
+      .highlights-grid { grid-template-columns: 1fr; }
+      .stats-band { grid-template-columns: 1fr 1fr; }
+      .banner-cta { padding: 40px 20px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 6px 20px; }
+      .header-inner { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span>📅 Đăng ký mùa 2025 đang mở &nbsp;·&nbsp; Registration for Season 2025 is now open</span>
+  <div>
+    <a href="#">Thông tin · Info</a>
+    <a href="#">Liên hệ · Contact</a>
+    <button class="lang-toggle">VI / EN</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo-wrap">
+      <div class="logo-icon">FPT</div>
+      <div class="logo-text">
+        <span class="brand">FPS <span>LeCode</span></span>
+        <span class="sub">Annual Programming Contest &nbsp;·&nbsp; Cuộc thi Lập trình Thường niên</span>
+      </div>
+    </a>
+    <nav>
+      <div class="nav-item active">Trang chủ<br/><small style="font-size:10px;font-weight:400;opacity:.55">Home</small></div>
+      <div class="nav-item">Về cuộc thi<br/><small style="font-size:10px;font-weight:400;opacity:.55">About</small></div>
+      <div class="nav-item">Thể lệ<br/><small style="font-size:10px;font-weight:400;opacity:.55">Rules</small></div>
+      <div class="nav-item">Tin tức<br/><small style="font-size:10px;font-weight:400;opacity:.55">News</small></div>
+      <div class="nav-item">Bảng XH<br/><small style="font-size:10px;font-weight:400;opacity:.55">Rankings</small></div>
+      <div class="nav-item">Liên hệ<br/><small style="font-size:10px;font-weight:400;opacity:.55">Contact</small></div>
+    </nav>
+    <div class="search-wrap">
+      <svg width="14" height="14" fill="none" stroke="#999" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="nav-search" type="text" placeholder="Tìm kiếm · Search…"/>
+    </div>
+  </div>
+</header>
+
+<!-- HERO SLIDER -->
+<div class="hero">
+  <div class="hero-slides" id="slides">
+
+    <!-- Slide 1 -->
+    <div class="hero-slide">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#0a1e35 0%,#1a4070 100%);"></div>
+      <div class="slide-overlay"></div>
+      <div class="code-deco">function solve(graph, n) {
+  const dist = Array(n).fill(Infinity);
+  dist[0] = 0;
+  const pq = [[0, 0]];
+  while (pq.length) {
+    const [d, u] = pq.shift();
+    for (const [v, w] of graph[u]) {
+      if (dist[u] + w &lt; dist[v]) {
+        dist[v] = dist[u] + w;
+        pq.push([dist[v], v]);
+      }
+    }
+  }
+  return dist;
+}</div>
+      <div class="slide-content">
+        <span class="slide-tag">⭐ Cuộc thi Thường niên · Annual Contest</span>
+        <h1 class="slide-title">FPS LeCode 2025<br/>Chinh phục giới hạn lập trình</h1>
+        <p class="slide-desc">Cuộc thi lập trình thường niên hàng đầu do FPT tổ chức — nơi các lập trình viên xuất sắc nhất tranh tài và khẳng định bản thân.<br/><em style="opacity:.75">The leading annual programming contest by FPT — where the best coders compete and shine.</em></p>
+        <a href="#" class="btn-primary">Đăng ký ngay · Register Now</a>
+        <a href="#" class="btn-outline">Tìm hiểu · Learn More</a>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="hero-slide">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#1a2a1a 0%,#2d5a20 100%);"></div>
+      <div class="slide-overlay"></div>
+      <div class="code-deco">def knapsack(W, wt, val, n):
+    dp = [[0]*(W+1) for _ in range(n+1)]
+    for i in range(1, n+1):
+        for w in range(W+1):
+            if wt[i-1] &lt;= w:
+                dp[i][w] = max(
+                    val[i-1]+dp[i-1][w-wt[i-1]],
+                    dp[i-1][w]
+                )
+            else:
+                dp[i][w] = dp[i-1][w]
+    return dp[n][W]</div>
+      <div class="slide-content">
+        <span class="slide-tag">🏆 Giải thưởng · Prizes</span>
+        <h1 class="slide-title">Tổng giải thưởng<br/>lên đến 500 triệu VNĐ</h1>
+        <p class="slide-desc">Hàng trăm suất học bổng, cơ hội thực tập tại FPT và các doanh nghiệp đối tác hàng đầu Việt Nam và khu vực.<br/><em style="opacity:.75">Hundreds of scholarships and internship opportunities at FPT and leading partner companies.</em></p>
+        <a href="#" class="btn-primary">Xem giải thưởng · View Prizes</a>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="hero-slide">
+      <div class="slide-bg" style="background:linear-gradient(135deg,#2a1030 0%,#5a1020 100%);"></div>
+      <div class="slide-overlay"></div>
+      <div class="code-deco">int main() {
+  int t; cin >> t;
+  while (t--) {
+    int n; cin >> n;
+    vector&lt;long long&gt; a(n);
+    for (auto &amp;x : a) cin >> x;
+    sort(a.begin(), a.end());
+    long long ans = 0;
+    for (int i=0; i&lt;n; i++)
+      ans += a[i] * (i - (n-1-i));
+    cout &lt;&lt; ans &lt;&lt; "\n";
+  }
+}</div>
+      <div class="slide-content">
+        <span class="slide-tag">📅 Lịch thi · Schedule</span>
+        <h1 class="slide-title">Vòng Sơ loại Online<br/>Mở từ 01/09/2025</h1>
+        <p class="slide-desc">Thi trực tuyến trên nền tảng FPT Judge — hỗ trợ C++, Python, Java và nhiều ngôn ngữ khác.<br/><em style="opacity:.75">Online round on FPT Judge platform — supporting C++, Python, Java and more.</em></p>
+        <a href="#" class="btn-primary">Xem lịch thi · View Schedule</a>
+      </div>
+    </div>
+
+  </div>
+  <div class="hero-arrows">
+    <button class="arrow-btn" onclick="changeSlide(-1)">&#8592;</button>
+    <button class="arrow-btn" onclick="changeSlide(1)">&#8594;</button>
+  </div>
+  <div class="hero-dots">
+    <div class="dot active" onclick="goSlide(0)"></div>
+    <div class="dot" onclick="goSlide(1)"></div>
+    <div class="dot" onclick="goSlide(2)"></div>
+  </div>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="quicklinks">
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Đăng ký tham gia<br/><small style="opacity:.6">Register</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Lịch thi<br/><small style="opacity:.6">Schedule</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Bảng xếp hạng<br/><small style="opacity:.6">Rankings</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Đề thi mẫu<br/><small style="opacity:.6">Sample Problems</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Thể lệ<br/><small style="opacity:.6">Rules</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Hỏi đáp<br/><small style="opacity:.6">FAQ</small>
+  </div>
+  <div class="ql-item">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Kỳ trước<br/><small style="opacity:.6">Past Editions</small>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stat-item"><span class="stat-num">12+</span><div class="stat-label">Năm tổ chức · Years of Contest</div></div>
+  <div class="stat-item"><span class="stat-num">15,000+</span><div class="stat-label">Thí sinh đăng ký · Registered Contestants</div></div>
+  <div class="stat-item"><span class="stat-num">63</span><div class="stat-label">Tỉnh/Thành tham dự · Provinces</div></div>
+  <div class="stat-item"><span class="stat-num">500M+</span><div class="stat-label">Giá trị giải thưởng VNĐ · Prize Pool</div></div>
+</div>
+
+<!-- NEWS -->
+<div class="section-wrap">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Tin tức · News</div>
+      <h2 class="section-title">Cập nhật mới nhất từ FPS LeCode<br/><span style="font-size:.72em;font-weight:400;color:var(--gray-600)">Latest Updates from FPS LeCode</span></h2>
+    </div>
+    <a href="#" class="view-all">Xem tất cả · View All →</a>
+  </div>
+  <div class="news-grid">
+    <div class="news-card featured">
+      <div class="card-img" style="height:300px;">
+        <div class="card-img-inner placeholder-img" style="height:300px;background:linear-gradient(135deg,#f37021,#c85a10);">
+          [Ảnh sự kiện chính · Main Event Photo]
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">📢 Thông báo · Announcement</div>
+        <div class="card-title">FPS LeCode 2025 chính thức mở đăng ký — hơn 500 triệu đồng giải thưởng chờ đón thí sinh xuất sắc</div>
+        <div class="card-meta">15 tháng 8, 2025 · August 15, 2025 &nbsp;|&nbsp; Ban Tổ chức FPS LeCode</div>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="card-img" style="height:210px;">
+        <div class="card-img-inner placeholder-img" style="height:210px;background:var(--gray-200);color:var(--gray-400);">[Ảnh · Photo]</div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">🏆 Kết quả · Results</div>
+        <div class="card-title">Top 10 thí sinh xuất sắc nhất FPS LeCode 2024 — hành trình từ vòng sơ loại đến vinh quang</div>
+        <div class="card-meta">20/12/2024 &nbsp;|&nbsp; Dec 20, 2024</div>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="card-img" style="height:210px;">
+        <div class="card-img-inner placeholder-img" style="height:210px;background:var(--gray-200);color:var(--gray-400);">[Ảnh · Photo]</div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">📚 Tài nguyên · Resources</div>
+        <div class="card-title">Bộ đề luyện tập chính thức mùa 2025 đã công bố trên nền tảng FPT Judge — tải ngay miễn phí</div>
+        <div class="card-meta">01/08/2025 &nbsp;|&nbsp; Aug 01, 2025</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIGHLIGHTS -->
+<div class="highlights-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Điểm nổi bật · Highlights</div>
+        <h2 class="section-title">Tại sao chọn FPS LeCode?<br/><span style="font-size:.72em;font-weight:400;color:var(--gray-600)">Why FPS LeCode?</span></h2>
+      </div>
+    </div>
+    <div class="highlights-grid">
+      <div class="hl-card">
+        <div class="hl-icon">
+          <svg width="24" height="24" fill="none" stroke="var(--fpt-orange)" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="hl-title">Uy tín 12+ năm / 12+ Years of Prestige</div>
+        <div class="hl-desc">Được tổ chức liên tục bởi FPT — tập đoàn công nghệ hàng đầu Việt Nam. Cuộc thi được cộng đồng lập trình viên tin tưởng và công nhận rộng rãi.<br/><br/><em>Organized continuously by FPT — Vietnam's leading tech conglomerate, widely recognized in the coding community.</em></div>
+        <a href="#" class="hl-link">Lịch sử cuộc thi →</a>
+      </div>
+      <div class="hl-card">
+        <div class="hl-icon">
+          <svg width="24" height="24" fill="none" stroke="var(--fpt-orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="hl-title">15,000+ Thí sinh / Contestants</div>
+        <div class="hl-desc">Hàng chục nghìn lập trình viên từ khắp 63 tỉnh thành tranh tài mỗi năm. Đây là đấu trường lập trình lớn nhất Việt Nam do doanh nghiệp tổ chức.<br/><br/><em>Tens of thousands of programmers from all 63 provinces compete annually. Vietnam's largest enterprise-organized coding competition.</em></div>
+        <a href="#" class="hl-link">Xem thống kê →</a>
+      </div>
+      <div class="hl-card">
+        <div class="hl-icon">
+          <svg width="24" height="24" fill="none" stroke="var(--fpt-orange)" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div class="hl-title">Cơ hội nghề nghiệp / Career Opportunities</div>
+        <div class="hl-desc">Thí sinh xuất sắc được tuyển thẳng vào FPT Software, FPT IS và các công ty thành viên. Vé vàng vào hệ sinh thái công nghệ FPT.<br/><br/><em>Top contestants get fast-tracked into FPT Software, FPT IS and affiliates — a golden ticket into the FPT tech ecosystem.</em></div>
+        <a href="#" class="hl-link">Cơ hội việc làm →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVENTS + SIDEBAR -->
+<div class="section-wrap">
+  <div class="events-layout" style="display:grid;grid-template-columns:1fr 360px;gap:48px;">
+    <div>
+      <div class="section-header" style="margin-bottom:20px;">
+        <div>
+          <div class="section-label">Lịch sự kiện · Events</div>
+          <h2 class="section-title" style="font-size:22px;">Các mốc quan trọng mùa 2025<br/><span style="font-size:.78em;font-weight:400;color:var(--gray-600)">Key Milestones — Season 2025</span></h2>
+        </div>
+        <a href="#" class="view-all">Xem đầy đủ →</a>
+      </div>
+      <ul class="events-list">
+        <li class="event-row">
+          <div class="event-date"><div class="day">01</div><div class="month">Sep</div></div>
+          <div class="event-info">
+            <div class="event-title">Vòng Sơ loại Trực tuyến / Online Qualification Round</div>
+            <div class="event-meta">01/09 – 15/09/2025 &nbsp;·&nbsp; Thi trực tuyến tại nhà · Online from home &nbsp;·&nbsp; FPT Judge Platform</div>
+          </div>
+        </li>
+        <li class="event-row">
+          <div class="event-date"><div class="day">05</div><div class="month">Oct</div></div>
+          <div class="event-info">
+            <div class="event-title">Vòng Khu vực / Regional Round</div>
+            <div class="event-meta">05/10/2025 &nbsp;·&nbsp; Hà Nội, Đà Nẵng, TP.HCM · Hanoi, Da Nang, Ho Chi Minh City</div>
+          </div>
+        </li>
+        <li class="event-row">
+          <div class="event-date" style="background:var(--navy);"><div class="day">15</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <div class="event-title">Vòng Chung kết Quốc gia / National Finals</div>
+            <div class="event-meta">15/11/2025 &nbsp;·&nbsp; Đại học FPT Hà Nội · FPT University Hanoi</div>
+          </div>
+        </li>
+        <li class="event-row">
+          <div class="event-date" style="background:var(--navy);"><div class="day">20</div><div class="month">Nov</div></div>
+          <div class="event-info">
+            <div class="event-title">Lễ trao giải & Gala FPS LeCode 2025 / Award Ceremony & Gala</div>
+            <div class="event-meta">20/11/2025 &nbsp;·&nbsp; Trung tâm Hội nghị FPT · FPT Convention Center, Hanoi</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="sidebar-countdown">
+        <div class="section-label">Đếm ngược · Countdown</div>
+        <div style="font-family:var(--font-serif);font-size:13px;font-weight:700;color:var(--navy);margin-top:10px;">Vòng sơ loại bắt đầu sau:<br/><small style="font-weight:400;font-size:11px;color:var(--gray-600)">Online round starts in:</small></div>
+        <div class="cd-grid">
+          <div class="cd-unit"><div class="cd-num" id="cd-days">--</div><div class="cd-label">Ngày · Days</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-hrs">--</div><div class="cd-label">Giờ · Hrs</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-min">--</div><div class="cd-label">Phút · Min</div></div>
+        </div>
+      </div>
+      <div class="sidebar-stats">
+        <div class="section-label" style="color:var(--fpt-orange);margin-bottom:16px;">Thống kê Trực tiếp · Live Stats</div>
+        <div class="stat-row"><span>Thí sinh đã đăng ký · Registered</span><span>3,247</span></div>
+        <div class="stat-row"><span>Trường đại học · Universities</span><span>128</span></div>
+        <div class="stat-row"><span>Tỉnh/TP · Provinces</span><span>43 / 63</span></div>
+        <div class="stat-row"><span>Ngôn ngữ · Languages</span><span>C++, Python, Java</span></div>
+        <a href="#" class="btn-primary" style="display:block;text-align:center;margin-top:20px;">Đăng ký ngay · Register Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER CTA -->
+<div class="banner-cta">
+  <div>
+    <h2>Bạn đã sẵn sàng tranh tài?<br/><span style="font-family:var(--font-sans);font-weight:300;font-size:.75em;color:rgba(255,255,255,.65)">Are you ready to compete?</span></h2>
+    <p style="margin-top:10px;">Đăng ký FPS LeCode 2025 ngay hôm nay — hoàn toàn miễn phí. Luyện đề, tranh tài và giành giải thưởng giá trị.<br/><em style="opacity:.7">Register for FPS LeCode 2025 today — completely free. Practice, compete, and win valuable prizes.</em></p>
+  </div>
+  <a href="#" class="btn-cta">Đăng ký miễn phí · Register Free →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="logo-wrap">
+        <div class="logo-icon">FPT</div>
+        <div class="logo-text">
+          <span class="brand" style="color:#fff;">FPS <span>LeCode</span></span>
+          <span class="sub">Annual Programming Contest</span>
+        </div>
+      </div>
+      <p class="footer-desc">Cuộc thi lập trình thường niên do FPT tổ chức — kết nối, thúc đẩy và tôn vinh tài năng lập trình Việt Nam và khu vực.<br/><em>Annual programming contest organized by FPT — connecting and celebrating coding talent in Vietnam and the region.</em></p>
+      <div class="footer-socials">
+        <div class="social-btn">f</div>
+        <div class="social-btn">▶</div>
+        <div class="social-btn">in</div>
+        <div class="social-btn">gh</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Cuộc thi · Contest</h4>
+      <ul>
+        <li><a href="#">Giới thiệu · About</a></li>
+        <li><a href="#">Thể lệ · Rules</a></li>
+        <li><a href="#">Lịch thi · Schedule</a></li>
+        <li><a href="#">Giải thưởng · Prizes</a></li>
+        <li><a href="#">Đề thi mẫu · Samples</a></li>
+        <li><a href="#">Kỳ trước · Past Editions</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Thí sinh · Contestants</h4>
+      <ul>
+        <li><a href="#">Đăng ký · Register</a></li>
+        <li><a href="#">Bảng xếp hạng · Rankings</a></li>
+        <li><a href="#">Tài nguyên · Resources</a></li>
+        <li><a href="#">Cộng đồng · Community</a></li>
+        <li><a href="#">Hỏi đáp · FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Liên hệ · Contact</h4>
+      <ul>
+        <li><a href="#">📧 fpslecode@fpt.com.vn</a></li>
+        <li><a href="#">📞 1800-599-919</a></li>
+        <li><a href="#">📍 Hà Nội · Hanoi</a></li>
+        <li><a href="#">📍 TP.HCM · Ho Chi Minh City</a></li>
+        <li style="margin-top:10px;"><a href="#" style="color:var(--fpt-orange);font-weight:700;">Ban tổ chức: FPT Corporation</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 FPS LeCode — FPT Corporation. Bảo lưu mọi quyền · All rights reserved.</span>
+    <div>
+      <a href="#">Chính sách · Privacy</a>
+      <a href="#">Điều khoản · Terms</a>
+      <a href="#">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Slider
+  let current = 0;
+  const total = 3;
+  const slidesEl = document.getElementById('slides');
+  const dots = document.querySelectorAll('.dot');
+  function goSlide(n) {
+    current = ((n % total) + total) % total;
+    slidesEl.style.transform = 'translateX(-' + (current * 33.333) + '%)';
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+  function changeSlide(dir) { goSlide(current + dir); }
+  setInterval(() => changeSlide(1), 5500);
+
+  // Countdown to Sep 1 2025
+  function updateCountdown() {
+    const target = new Date('2025-09-01T00:00:00+07:00');
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) {
+      ['cd-days','cd-hrs','cd-min'].forEach(id => document.getElementById(id).textContent = '00');
+      return;
+    }
+    document.getElementById('cd-days').textContent = String(Math.floor(diff / 86400000)).padStart(2,'0');
+    document.getElementById('cd-hrs').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+    document.getElementById('cd-min').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 30000);
+
+  // Responsive
+  function checkLayout() {
+    const el = document.querySelector('.events-layout');
+    if (el) el.style.gridTemplateColumns = window.innerWidth < 900 ? '1fr' : '1fr 360px';
+  }
+  checkLayout();
+  window.addEventListener('resize', checkLayout);
+</script>
+</body>
+</html>
